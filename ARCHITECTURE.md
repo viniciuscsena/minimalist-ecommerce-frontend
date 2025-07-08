@@ -1,48 +1,85 @@
 # Minimalist E-commerce Architecture Documentation
 
 **Author:** Manus AI  
-**Version:** 1.0.0  
+**Version:** 2.0.0 (MVC Update)  
 **Date:** January 2025
 
 ## Table of Contents
 
 1. [Executive Summary](#executive-summary)
 2. [System Architecture Overview](#system-architecture-overview)
-3. [Frontend Architecture](#frontend-architecture)
-4. [Backend Architecture](#backend-architecture)
-5. [Database Design](#database-design)
-6. [API Design Patterns](#api-design-patterns)
-7. [Guest Checkout Implementation](#guest-checkout-implementation)
-8. [Security Considerations](#security-considerations)
-9. [Scalability and Performance](#scalability-and-performance)
-10. [Deployment Strategy](#deployment-strategy)
-11. [Future Considerations](#future-considerations)
+3. [MVC Architecture Implementation](#mvc-architecture-implementation)
+4. [Frontend Architecture](#frontend-architecture)
+5. [Backend Architecture](#backend-architecture)
+6. [Database Design](#database-design)
+7. [API Design Patterns](#api-design-patterns)
+8. [Guest Checkout Implementation](#guest-checkout-implementation)
+9. [Security Considerations](#security-considerations)
+10. [Scalability and Performance](#scalability-and-performance)
+11. [Deployment Strategy](#deployment-strategy)
+12. [Future Considerations](#future-considerations)
 
 ## Executive Summary
 
-This document outlines the comprehensive architecture for a minimalist e-commerce platform designed to sell essential clothing items, starting with a single product: a black t-shirt. The system is built with scalability in mind, supporting both authenticated users and guest checkout functionality while maintaining a clean, modern, and maintainable codebase.
+This document outlines the comprehensive architecture for a minimalist e-commerce platform designed to sell essential clothing items, starting with a single product: a black t-shirt. The system has been updated to follow a Model-View-Controller (MVC) architecture pattern with both frontend and backend components residing in the same repository.
 
-The architecture follows modern best practices including microservices principles, API-first design, and separation of concerns. The frontend is built as a fully decoupled React application that communicates with the backend exclusively through well-defined REST APIs. This approach ensures maximum flexibility for future enhancements and platform expansions.
+The architecture follows modern best practices including MVC design patterns, API-first design, and separation of concerns. The frontend is built as a React application that communicates with a Flask backend through well-defined REST APIs. This monorepo approach ensures easier development and deployment while maintaining clear separation between frontend and backend concerns.
 
 The system is designed to handle the unique requirements of guest checkout, where customers can complete purchases without creating accounts while still maintaining the ability to track orders and potentially convert to registered users later. This approach reduces friction in the purchasing process while preserving valuable customer data for future engagement.
 
 ## System Architecture Overview
 
-The minimalist e-commerce platform follows a modern, decoupled architecture that separates the frontend presentation layer from the backend business logic and data persistence layers. This architectural approach provides several key advantages including improved maintainability, scalability, and the ability to evolve different components independently.
+The minimalist e-commerce platform follows a modern MVC architecture that combines both frontend and backend components in a single repository. This architectural approach provides several key advantages including improved maintainability, easier development workflow, and simplified deployment processes.
 
 ### High-Level Architecture Components
 
-The system consists of several key components that work together to provide a seamless e-commerce experience. The frontend React application serves as the user interface, handling all customer interactions and presenting product information, shopping cart functionality, and checkout processes. This frontend communicates exclusively with the backend through a comprehensive REST API that follows OpenAPI 3.0 specifications.
+The system consists of several key components organized in an MVC pattern. The frontend React application serves as the View layer, handling all customer interactions and presenting product information, shopping cart functionality, and checkout processes. The backend Flask application serves as the Controller and Model layers, handling business logic, data persistence, and API endpoints.
 
-The backend API layer serves as the central hub for all business logic, handling user authentication, product management, order processing, and payment integration. This layer is designed to be stateless and horizontally scalable, making it suitable for high-traffic scenarios as the business grows.
-
-The data persistence layer utilizes a relational database management system to store all application data including user profiles, product information, orders, and guest checkout records. The choice of a relational database provides strong consistency guarantees and supports complex queries required for e-commerce operations.
+The Model layer is implemented through SQLAlchemy ORM models that interact with a PostgreSQL database. The Controller layer consists of Flask route handlers and controller classes that process HTTP requests and coordinate between the Model and View layers. The View layer is the React frontend that renders the user interface and manages client-side state.
 
 ### Communication Patterns
 
-All communication between the frontend and backend occurs through HTTP REST API calls using JSON as the data exchange format. The API follows RESTful principles with clear resource-based URLs, appropriate HTTP methods, and standardized response formats. Authentication is handled through JWT tokens, providing a stateless authentication mechanism that scales well across multiple server instances.
+All communication between the frontend and backend occurs through HTTP REST API calls using JSON as the data exchange format. The API follows RESTful principles with clear resource-based URLs, appropriate HTTP methods, and standardized response formats. Authentication is handled through JWT tokens, providing a stateless authentication mechanism that scales well.
 
 For guest checkout scenarios, the system maintains session state through a combination of local storage on the frontend and temporary cart storage on the backend. This approach allows guest users to maintain their shopping cart across browser sessions while avoiding the complexity of user account creation.
+
+## MVC Architecture Implementation
+
+The application implements a clear Model-View-Controller architecture pattern that separates concerns and promotes maintainable code organization. This section details how each component of the MVC pattern is implemented within the system.
+
+### Model Layer Implementation
+
+The Model layer is responsible for data representation, business logic, and database interactions. In this implementation, the Model layer consists of SQLAlchemy ORM models that define the structure of database entities and their relationships. Each model class encapsulates the data and behavior associated with a specific business entity.
+
+The Product model handles all product-related data including basic information, pricing, inventory levels, and product variants. This model includes methods for inventory management, price calculations, and product availability checks. The model ensures data integrity through validation rules and constraints.
+
+The User model manages customer account information including authentication credentials, personal details, and preferences. This model includes methods for password hashing, email verification, and profile management. The model supports both full user accounts and the association of guest orders with email addresses.
+
+The Order model represents customer purchases and includes all necessary information for order processing and fulfillment. This model handles both authenticated user orders and guest orders, maintaining a clear audit trail of all transactions. The model includes methods for order status updates, payment processing, and shipping management.
+
+The Cart model manages shopping cart functionality for both authenticated users and guest sessions. This model includes methods for adding items, updating quantities, calculating totals, and managing cart expiration for guest users.
+
+### View Layer Implementation
+
+The View layer is implemented as a React single-page application that provides a responsive and interactive user interface. The View layer is responsible for presenting data to users, capturing user input, and managing client-side application state.
+
+The React application is organized into reusable components that follow a hierarchical structure. Page components represent major application views and coordinate the overall user experience for specific sections. Layout components provide consistent structure across all pages including headers, footers, and navigation elements.
+
+UI components provide reusable interface elements that maintain consistent design patterns throughout the application. These components are built using modern React patterns including hooks, context, and functional components. The components are styled using TailwindCSS and enhanced with Radix UI for accessibility compliance.
+
+State management in the View layer combines React Context for global state with local component state for UI-specific data. The shopping cart state is managed through a React Context that provides cart operations to all components. Authentication state is similarly managed through a dedicated context that handles login status and user profile information.
+
+### Controller Layer Implementation
+
+The Controller layer is implemented through Flask route handlers and controller classes that process HTTP requests and coordinate between the Model and View layers. Each controller is responsible for a specific domain area and includes methods for handling different types of requests.
+
+The ProductController handles all product-related requests including product catalog retrieval, individual product details, and product search functionality. This controller coordinates with the Product model to retrieve data and formats responses according to API specifications.
+
+The CartController manages shopping cart operations including adding items, updating quantities, and retrieving cart contents. This controller handles both authenticated user carts and guest session carts, ensuring appropriate data isolation and security.
+
+The CheckoutController processes order creation and payment handling for both authenticated users and guest customers. This controller coordinates with multiple models including Cart, Order, and User to complete the checkout process while maintaining data consistency.
+
+The AuthController handles user authentication and registration processes. This controller manages JWT token creation and validation, password verification, and user session management. The controller ensures secure authentication practices and proper error handling.
 
 ## Frontend Architecture
 
