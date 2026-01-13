@@ -1,48 +1,88 @@
 # Minimalist E-commerce Architecture Documentation
 
 **Author:** Manus AI  
-**Version:** 1.0.0  
+**Version:** 3.0.0 (Spring Boot MVC Update)  
 **Date:** January 2025
 
 ## Table of Contents
 
 1. [Executive Summary](#executive-summary)
 2. [System Architecture Overview](#system-architecture-overview)
-3. [Frontend Architecture](#frontend-architecture)
-4. [Backend Architecture](#backend-architecture)
-5. [Database Design](#database-design)
-6. [API Design Patterns](#api-design-patterns)
-7. [Guest Checkout Implementation](#guest-checkout-implementation)
-8. [Security Considerations](#security-considerations)
-9. [Scalability and Performance](#scalability-and-performance)
-10. [Deployment Strategy](#deployment-strategy)
-11. [Future Considerations](#future-considerations)
+3. [Spring Boot MVC Architecture Implementation](#spring-boot-mvc-architecture-implementation)
+4. [Frontend Architecture](#frontend-architecture)
+5. [Backend Architecture](#backend-architecture)
+6. [Database Design](#database-design)
+7. [API Design Patterns](#api-design-patterns)
+8. [OpenAPI Code Generation](#openapi-code-generation)
+9. [Guest Checkout Implementation](#guest-checkout-implementation)
+10. [Security Considerations](#security-considerations)
+11. [Scalability and Performance](#scalability-and-performance)
+12. [Deployment Strategy](#deployment-strategy)
+13. [Future Considerations](#future-considerations)
 
 ## Executive Summary
 
-This document outlines the comprehensive architecture for a minimalist e-commerce platform designed to sell essential clothing items, starting with a single product: a black t-shirt. The system is built with scalability in mind, supporting both authenticated users and guest checkout functionality while maintaining a clean, modern, and maintainable codebase.
+This document outlines the comprehensive architecture for a minimalist e-commerce platform designed to sell essential clothing items, starting with a single product: a black t-shirt. The system has been updated to follow a Model-View-Controller (MVC) architecture pattern using Java 21 and Spring Boot for the backend, with both frontend and backend components residing in the same repository.
 
-The architecture follows modern best practices including microservices principles, API-first design, and separation of concerns. The frontend is built as a fully decoupled React application that communicates with the backend exclusively through well-defined REST APIs. This approach ensures maximum flexibility for future enhancements and platform expansions.
+The architecture follows modern best practices including Spring Boot MVC design patterns, API-first design with OpenAPI code generation, and separation of concerns. The frontend is built as a React application that communicates with a Spring Boot backend through well-defined REST APIs. This monorepo approach ensures easier development and deployment while maintaining clear separation between frontend and backend concerns.
+
+The system leverages the OpenAPI Generator Maven Plugin to automatically generate controller interfaces from the OpenAPI specification, ensuring consistency between API documentation and implementation. This approach reduces development time and maintains API contract compliance throughout the development lifecycle.
 
 The system is designed to handle the unique requirements of guest checkout, where customers can complete purchases without creating accounts while still maintaining the ability to track orders and potentially convert to registered users later. This approach reduces friction in the purchasing process while preserving valuable customer data for future engagement.
 
 ## System Architecture Overview
 
-The minimalist e-commerce platform follows a modern, decoupled architecture that separates the frontend presentation layer from the backend business logic and data persistence layers. This architectural approach provides several key advantages including improved maintainability, scalability, and the ability to evolve different components independently.
+The minimalist e-commerce platform follows a modern Spring Boot MVC architecture that combines both frontend and backend components in a single repository. This architectural approach provides several key advantages including improved maintainability, easier development workflow, simplified deployment processes, and leveraging the robust Spring ecosystem.
 
 ### High-Level Architecture Components
 
-The system consists of several key components that work together to provide a seamless e-commerce experience. The frontend React application serves as the user interface, handling all customer interactions and presenting product information, shopping cart functionality, and checkout processes. This frontend communicates exclusively with the backend through a comprehensive REST API that follows OpenAPI 3.0 specifications.
+The system consists of several key components organized in a Spring Boot MVC pattern. The frontend React application serves as the View layer, handling all customer interactions and presenting product information, shopping cart functionality, and checkout processes. The backend Spring Boot application serves as the Controller and Model layers, handling business logic, data persistence, and API endpoints.
 
-The backend API layer serves as the central hub for all business logic, handling user authentication, product management, order processing, and payment integration. This layer is designed to be stateless and horizontally scalable, making it suitable for high-traffic scenarios as the business grows.
-
-The data persistence layer utilizes a relational database management system to store all application data including user profiles, product information, orders, and guest checkout records. The choice of a relational database provides strong consistency guarantees and supports complex queries required for e-commerce operations.
+The Model layer is implemented through JPA entities that interact with a PostgreSQL database using Spring Data JPA. The Controller layer consists of Spring REST controllers that are generated from OpenAPI specifications and handle HTTP requests. The Service layer contains business logic and coordinates between controllers and repositories. The Repository layer handles data persistence using Spring Data JPA repositories.
 
 ### Communication Patterns
 
-All communication between the frontend and backend occurs through HTTP REST API calls using JSON as the data exchange format. The API follows RESTful principles with clear resource-based URLs, appropriate HTTP methods, and standardized response formats. Authentication is handled through JWT tokens, providing a stateless authentication mechanism that scales well across multiple server instances.
+All communication between the frontend and backend occurs through HTTP REST API calls using JSON as the data exchange format. The API follows RESTful principles with clear resource-based URLs, appropriate HTTP methods, and standardized response formats. Authentication is handled through JWT tokens using Spring Security, providing a stateless authentication mechanism that scales well.
 
-For guest checkout scenarios, the system maintains session state through a combination of local storage on the frontend and temporary cart storage on the backend. This approach allows guest users to maintain their shopping cart across browser sessions while avoiding the complexity of user account creation.
+For guest checkout scenarios, the system maintains session state through a combination of local storage on the frontend and temporary cart storage on the backend using Spring Session. This approach allows guest users to maintain their shopping cart across browser sessions while avoiding the complexity of user account creation.
+
+## Spring Boot MVC Architecture Implementation
+
+The application implements a clear Model-View-Controller architecture pattern using Spring Boot framework that separates concerns and promotes maintainable code organization. This section details how each component of the MVC pattern is implemented within the Spring ecosystem.
+
+### Model Layer Implementation
+
+The Model layer in the Spring Boot implementation is responsible for data representation, business logic, and database interactions. The Model layer consists of JPA entities that define the structure of database entities and their relationships using Spring Data JPA. Each entity class encapsulates the data and behavior associated with a specific business entity.
+
+The Product entity handles all product-related data including basic information, pricing, inventory levels, and product variants. This entity includes JPA annotations for database mapping and validation annotations for data integrity. The entity supports complex queries through Spring Data JPA repository methods and custom query definitions.
+
+The User entity manages customer account information including authentication credentials, personal details, and preferences. This entity includes methods for password encoding using Spring Security's password encoders, email verification workflows, and profile management. The entity supports both full user accounts and the association of guest orders with email addresses through flexible relationship mappings.
+
+The Order entity represents customer purchases and includes all necessary information for order processing and fulfillment. This entity handles both authenticated user orders and guest orders, maintaining a clear audit trail of all transactions through JPA auditing features. The entity includes lifecycle callbacks for order status updates, payment processing integration, and shipping management.
+
+The Cart entity manages shopping cart functionality for both authenticated users and guest sessions. This entity includes methods for adding items, updating quantities, calculating totals, and managing cart expiration for guest users through Spring's scheduling capabilities.
+
+### View Layer Implementation
+
+The View layer is implemented as a React single-page application that provides a responsive and interactive user interface. The View layer is responsible for presenting data to users, capturing user input, and managing client-side application state. The React application communicates with the Spring Boot backend through HTTP REST API calls.
+
+The React application is organized into reusable components that follow a hierarchical structure. Page components represent major application views and coordinate the overall user experience for specific sections. Layout components provide consistent structure across all pages including headers, footers, and navigation elements.
+
+UI components provide reusable interface elements that maintain consistent design patterns throughout the application. These components are built using modern React patterns including hooks, context, and functional components. The components are styled using TailwindCSS and enhanced with Radix UI for accessibility compliance.
+
+State management in the View layer combines React Context for global state with local component state for UI-specific data. The shopping cart state is managed through a React Context that provides cart operations to all components. Authentication state is similarly managed through a dedicated context that handles login status and user profile information.
+
+### Controller Layer Implementation
+
+The Controller layer is implemented through Spring REST controllers that are generated from OpenAPI specifications using the OpenAPI Generator Maven Plugin. Each controller interface is automatically generated based on the API documentation, ensuring consistency between documentation and implementation.
+
+The ProductController handles all product-related requests including product catalog retrieval, individual product details, and product search functionality. This controller implements the generated ProductApi interface and coordinates with the ProductService to retrieve data and format responses according to API specifications.
+
+The CartController manages shopping cart operations including adding items, updating quantities, and retrieving cart contents. This controller implements the generated CartApi interface and handles both authenticated user carts and guest session carts, ensuring appropriate data isolation and security through Spring Security integration.
+
+The CheckoutController processes order creation and payment handling for both authenticated users and guest customers. This controller implements the generated CheckoutApi interface and coordinates with multiple services including CartService, OrderService, and PaymentService to complete the checkout process while maintaining data consistency through Spring's transaction management.
+
+The AuthController handles user authentication and registration processes. This controller implements the generated AuthApi interface and manages JWT token creation and validation, password verification, and user session management using Spring Security. The controller ensures secure authentication practices and proper error handling through Spring's exception handling mechanisms.
 
 ## Frontend Architecture
 

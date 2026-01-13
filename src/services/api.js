@@ -1,5 +1,6 @@
 // API Configuration and Base Service
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+// Updated to use local Java Spring backend
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
 class ApiService {
   constructor() {
